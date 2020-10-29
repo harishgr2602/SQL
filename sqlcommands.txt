@@ -1,0 +1,92 @@
+create table branch(
+    branch_id int primary key,
+    branch_name varchar(20),
+    mgr_id int,
+    mgr_start_date date,
+    foreign key(mgr_id) references emplyee(emp_id) on delete set null
+);
+
+
+alter table emplyee
+add foreign key(branch_id)
+references branch(branch_id)
+on delete set null;
+
+alter table emplyee
+add foreign key(super_id)
+references emplyee(emp_id)
+on delete set null;
+
+create table client(
+    client_id int primary key,
+    client_name varchar(20),
+    branch_id int,
+    foreign key(branch_id) references branch(branch_id) on delete set null
+);
+
+create table work_with(
+    emp_id int,
+    client_id int,
+    total_sales int,
+    primary key(emp_id,client_id),
+    foreign key(emp_id) references emplyee(emp_id) on delete cascade,
+    foreign key(client_id) references client(client_id) on delete cascade
+);
+
+create table branch_supplier(
+    branch_id int,
+    supplier_name varchar(20),
+    supply_type varchar(20),
+    primary key(branch_id,supplier_name),
+    foreign key(branch_id) references branch(branch_id) on delete cascade
+);
+
+describe emplyee;
+
+insert into emplyee values(100,'dravid','mani','1967-02-21','m',52000,null,null);
+
+insert into branch values(1,'corporate',100,'2006-02-09');
+
+update emplyee
+set branch_id=1
+where emp_id=100;
+
+insert into emplyee values(103,'dinesh','c','1978-01-03','m',40000,100,1);
+insert into emplyee values(106,'moghan','kumar','1976-09-23','m',45500,null,null);
+insert into branch values(2,'scarnton',102,'1972-09-09');
+
+update emplyee
+set branch_id=2
+where emp_id=102;
+
+insert into emplyee values(107,'kam','c','1978-08-09','f',40900,100,1);
+insert into emplyee values(108,'karn','d','1968-10-09','m',45550,102,3);
+insert into emplyee values(109,'charan','sanjay','1978-11-01','m',82000,103,2);
+select * from emplyee;
+
+insert into emplyee values(105,'josh','porter','1967-02-09','m',23000,null,null);
+
+insert into branch values(3,'stanford',105,'1986-09-09');
+update emplyee
+set branch_id=3
+where emp_id=105;
+
+insert into emplyee values(110,'csanjay','babu','1978-01-10','m',45000,105,3);
+
+insert into branch_supplier VALUES(1,'hammer-mill','slaes');
+insert into branch_supplier VALUES(3,'mill','paper');
+insert into branch_supplier VALUES(5,'beyong','utelinsi');
+insert into branch_supplier VALUES(2,'h-mill','slae0s');
+
+insert into work_with values(103,402,45000);
+insert into work_with values(102,404,4000);
+insert into work_with values(104,407,38000);
+insert into work_with values(105,403,50000);
+
+select count(super_id) from emplyee;
+
+select sum(salary) from emplyee;
+
+
+
+
