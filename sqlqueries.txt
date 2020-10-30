@@ -1,0 +1,107 @@
+select * from clients
+where client_name like '%LLC';
+
+select * from emplyee where birth_day like '____-01%';
+
+select * from emplyee;
+
+--union operation--
+select first_name from emplyee
+union
+ select branch_name from branch;
+
+ insert into branch values(4,'rahman',null,null);
+ select * from  branch;
+
+ --join operations
+
+ select emplyee.emp_id, emplyee.first_name, branch.branch_name from emplyee join branch on emplyee.emp_id = branch.mgr_id;
+
+ select emplyee.emp_id, emplyee.first_name, branch.branch_name from emplyee left join branch on emplyee.emp_id = branch.mgr_id;
+
+ select emplyee.emp_id, emplyee.first_name, branch.branch_name from emplyee right join branch on emplyee.emp_id = branch.mgr_id;
+
+ --nested queries--
+
+select emplyee.first_name, emplyee.last_name
+from emplyee
+where emplyee.emp_id in (
+    select works_with.emp_id
+    from works_with
+    where works_with.total_sales > 300000
+);
+ 
+ select clients.client_name
+ from clients
+ where clients.branch_id = (
+      select branch.branch_id
+ from branch
+ where branch.mgr_id = 102
+ limit 1
+);
+
+--on delete concepts--
+
+  
+create table branch(
+    branch_id int primary key,
+    branch_name varchar(20),
+    mgr_id int,
+    mgr_start_date date,
+    foreign key(mgr_id) references emplyee(emp_id) on delete set null
+);
+--On delete set null--
+-- deleteing an id from the emplyee table
+delete from emplyee
+where emp_id = 102;
+
+select * from branch;
+
+select * from emplyee; -- datas which is 102 emp_id is null now--
+
+--on delete set cascade--
+select * from branch_supplier;
+insert into branch_supplier values(4,'bailboard','billing');
+
+delete from branch
+where branch_id = 4;
+
+select * from branch;
+select * from branch_supplier;
+--trigger commands--
+
+create table trigger_test(
+message varchar(100)
+);
+--- creating an separate table perform trigger commands---this queries are performed in mysql command prompt---
+  
+ -- DELIMITER $$
+  --create trigger trigger_test before insert on emplyee for each row begin insert into trigger_test values('addded new employee');    
+  --END$$
+  --DELIMITER ;
+
+  insert into emplyee values(109,'class','mark','1962-10-23','m',69000,106,3);
+select * from trigger_test;
+
+----using if else in triggers---
+DELIMITER $$
+create trigger my_trigger 
+before insert on emplyee 
+for each row begin
+if NEW.sex = 'm' then
+insert into trigger_test values('added male employee');
+elseif NEW.sex ='f' then
+insert into trigger_test values('added female employee');
+else
+insert into trigger_test values('added other employee');
+end if;
+END$$
+DELIMITER ;
+
+insert into emplyee values(120,'claire','martha','1967-10-31','f',65000,106,3);
+
+select * from emplyee;
+select * from trigger_test;
+
+
+
