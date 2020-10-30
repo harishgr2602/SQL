@@ -1,2 +1,3 @@
 # kloudone course
-the knowledge gained in kloudone learn platform 
+The knowledge gained in kloudlearn platform
+Iam learning about sql queries
