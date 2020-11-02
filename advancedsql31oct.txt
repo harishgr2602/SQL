@@ -1,0 +1,104 @@
+select concat("this is my concat operation");
+
+---- subqueries-----
+select last_name,salary
+from emplyee
+where salary>
+(select salary from emplyee where last_name='mani');
+
+select last_name,salary,emp_id
+from emplyee
+where emp_id=(select emp_id from emplyee where last_name='mani') And salary >
+(select salary from emplyee where last_name='mani');
+---grouping in subquereies-------
+
+select emp_id,min(salary)
+from emplyee
+group by emp_id
+having min(salary) > (select min(salary)
+from emplyee
+where emp_id=101); 
+
+---- alias query----
+SELECT last_name as initial
+FROM emplyee
+WHERE salary is not null;
+
+----index commands----
+
+create index index_names on emplyee(emp_id);
+describe emplyee;
+drop index index_name;
+
+---truncate an table---
+truncate table works_with;
+---create view of a table---
+create view employee_view as 
+select last_name,first_name 
+from emplyee;
+
+select * from employee_view;
+drop view employee_view;
+
+create view emplyee_view as
+select first_name,emp_id 
+from emplyee
+where emp_id is not null 
+with check option;
+
+select * from emplyee_view;
+update emplyee_view
+set first_name = 'dinesh'
+where emp_id = 103;
+----having clause---
+SELECT emp_id, first_name, last_name, salary 
+FROM emplyee
+GROUP BY salary
+HAVING COUNT(salary) < 30000;
+----- transactions------
+delete from emplyee 
+where emp_id=107;
+commit;
+select * from emplyee;
+
+delete from emplyee 
+where emp_id=107;
+rollback;
+select distinct salary from emplyee order by salary;
+---windosws analytical function---
+create table sales(region varchar(20),
+sales_code varchar(20),
+sales_vol int);
+
+insert into sales values('north','S01',400000);
+insert into sales values('south','S02',300000);
+insert into sales values('east','S03',450000);
+insert into sales values('west','S04',600000);
+insert into sales values('north','S01',550000);
+insert into sales values('south','S02',460000);
+insert into sales values('east','S03',48000);
+insert into sales values('west','S04',230000);
+insert into sales values('north','S01',80000);
+
+select * from sales;
+delete from sales where sales_vol = 400000;
+
+select sales_code,region,sales_vol,
+avg(sales_vol) partition by region from sales;
+
+Select * from sales where region='north' OR sales_vol>230000;
+--- function creation ----
+
+
+select * from emplyee;
+
+create function select_gender(@sex as varchar(20))
+returns table 
+as
+return
+(
+select * from emplyee where sex=@sex
+);
+
+
+
