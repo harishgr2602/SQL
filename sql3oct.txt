@@ -1,0 +1,347 @@
+
+----creating functions----
+
+create function add_five(@num as int)
+
+returns int
+
+as
+
+begin
+
+return(
+@num+5
+)
+
+end
+
+
+
+select dbo.add_five(100)
+
+
+
+select * from employee
+
+
+
+create function 
+select_gender(@gender as varchar(20))
+
+RETURNS
+table
+
+AS 
+
+RETURN
+(
+
+select * from employee where e_gender='male'
+
+)
+
+
+select * from dbo.select_gender('male')
+
+
+select * from dbo.select_gender('female')
+
+
+----case statement----
+select 
+
+case
+
+when 10>20 then '10 is greater than 20'
+
+when 10<20 then '10 is lesser than 20'
+
+else '10 is equal to 20'
+
+end
+
+select * from employee
+
+select *,grade=
+
+case
+
+when e_salary < 30000 then 'C'
+
+when e_salary < 70000 then 'B'
+
+else 'A'
+
+end
+
+from employee
+
+go
+
+
+------IIF clause-----
+
+select 
+
+iif(10>20, '10 is greater than 20','10 is lesser than 20')
+
+
+select * from employee
+
+
+
+select e_id,e_name,e_salary,iif (e_salary>30000,'experinced','fresher') as employee_work from employee
+
+-----procedure-----
+
+
+CREATE PROCEDURE employee_salary
+
+AS 
+
+SELECT e_salary FROM employee
+
+go;
+
+
+
+EXEC employee_salary
+
+create procedure employee_details
+
+as
+
+select * from employee
+
+go;
+
+
+
+exec employee_details
+
+
+create procedure employee_gender @gender varchar(20)
+
+as
+
+select * from employee
+
+select e_gender=@gender
+
+go
+
+
+
+exec employee_gender @gender='male'
+
+exec employee_gender @gender='female'
+
+
+---Exception handling----
+
+declare @val1 int;
+
+declare @val2 int;
+
+
+begin try
+
+set @val1=8;
+
+set @val2=@val1/0;
+
+end try
+
+
+begin catch
+
+print error_message()
+
+end catch
+
+go
+
+begin try
+
+select e_salary+e_name from employee
+
+end try
+
+begin catch
+
+print 'cannot add a numeric value in string value'
+
+end catch
+
+go
+
+
+----trnsaction----
+begin transaction
+
+update employee set e_salary=25000 where e_name='harish'
+
+commit transaction
+
+
+
+select * from employee
+
+----transaction with in try and catch----
+
+begin try
+
+begin transaction
+ 
+update employee set e_salary=50 where e_gender='male'
+
+ update employee set e_salary=130/0 where e_gender='female'
+
+commit transaction
+
+print 'transaction commited'
+
+end try
+
+begin catch
+
+rollback transaction
+
+print 'transaction rollbacked'
+
+end catch
+
+begin try
+
+begin transaction 
+
+update employee set e_salary=50 where e_gender='male'
+
+update employee set e_salary=130 where e_gender='female'
+
+commit transaction
+
+print 'transaction commited'
+
+end try
+
+begin catch
+
+rollback transaction
+
+print 'transaction rollbacked'
+
+end catch
+
+----changing recovery models-----
+
+use master
+
+go 
+
+alter database  [happy]
+
+set recovery simple with no_wait
+
+go
+
+use master
+
+go 
+
+alter database  [happy]
+
+set recovery full with no_wait
+
+go
+
+use master
+
+go 
+
+alter database  [happy]
+
+set recovery bulk_logged with no_wait
+
+go
+
+-----Database related DMV's------
+
+use tempdb
+
+go
+
+select sum(unallocated_extent_page_count) as [free pages],
+(sum(unallocated_extent_page_count)*1.0/128) as [free space in MB]
+
+from sys.dm_db_file_space_usage;
+
+
+use tempdb
+
+go
+
+select(total_log_size_in_bytes - used_log_space_in_bytes)*1.0/1024/1024 as [free log space in MB]
+
+from sys.dm_db_file_space_usage;
+
+use happy;
+
+go
+
+select * from sys.dm_db_partition_stats;
+
+go
+
+----sql server os relarted DMV's-----
+
+select count(*) as cached_pages_count,
+
+CASE database_id
+
+when 32767 then 'ResourceDb'
+
+else db_name(database_id)
+
+end as database_name
+
+from sys.dm_os_buffer_descriptors
+
+group by DB_name(database_id), database_id
+
+order by cached_pages_count desc;
+
+select *
+
+from sys.dm_os_threads 
+
+where started_by_sqlservr=0;
+
+----execution related DMV's-----
+
+select 
+
+c.session_id,c.net_transport,c.encrypt_option,
+
+c.auth_scheme,s.host_name,s.program_name,
+
+s.client_interface_name,s.login_name,s.nt_domain,
+
+s.nt_user_name,s.original_login_name,
+c.connect_time,
+s.login_time
+
+from sys.dm_exec_connections as c
+
+join sys.dm_exec_sessions as s
+
+on c.session_id=s.session_id
+
+where c.session_id=@@SPID;
+
+select login_name,count(session_id) as session_count
+
+from sys.dm_exec_sessions
+
+group by login_name;
+
