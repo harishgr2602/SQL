@@ -212,3 +212,7 @@ select login_name,count(session_id) as session_count
 from sys.dm_exec_sessions
 group by login_name;        
 
+----fragmentation status------
+
+select * from sys.dm_db_index_physical_stats(DB_ID('happy')
+,OBJECT_ID(N'[Person].[Address]'),null,null,null) as stats
